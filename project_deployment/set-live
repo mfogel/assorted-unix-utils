@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <tag>"
+  exit 1
+fi
+
+TAG="$1"
+SRC="live"
+SRC_TMP="live-tmp"
+
+# make sure the destion at least exists
+if [ ! -d "$TAG" ]; then
+  echo "Error: target directory '$TAG' does not exist"
+  exit 1
+fi
+
+# if there's anything in our way, it should be a symlink
+if [ -e "$SRC" -a ! -h "$SRC" ]; then
+  echo "Error: '$SRC' exists and is not a symlink - aborting"
+  exit 1
+fi
+
+# don't accidently clobber something
+if [ -e "$SRC_TMP" ]; then
+  echo "Error: '$SRC_TMP' exists - aborting"
+  exit 1
+fi
+
+# make a temp link, then atomoically move it into place
+ln -s ${TAG} ${SRC_TMP}
+mv -T ${SRC_TMP} ${SRC}
+

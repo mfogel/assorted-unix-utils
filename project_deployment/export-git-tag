@@ -1,0 +1,96 @@
+#!/bin/bash
+
+REPO=""
+PROJECT_ENV_NAME=""
+PROJECT_DIRNAME=""
+
+if [ -z "$REPO" ]; then
+  echo "Error: You need to edit this script to set the repository (REPO)"
+  echo "       and possibly the PROJECT_ENV_NAME and PROJECT_DIRNAME"
+  echo "       (if it's django project)"
+  echo "   ex: REPO=\"git.cbxt.net:/var/git/bel.git\""
+  echo "       PROJECT_ENV_NAME=\"WELLDONE_ENV\""
+  echo "       PROJECT_DIRNAME=\"welldone\""
+  exit 1
+fi
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <tag>"
+  exit 1
+fi
+
+TAG="$1"
+DIR="./$TAG"
+
+# empty directory ok, everything else, not so much.
+if [ -a "$DIR" ]; then
+  echo "Error: $DIR already exists - please clear and re-run"
+  exit 1
+fi
+
+# do the actual git export
+mkdir $DIR
+git archive --remote $REPO $TAG | tar -x -C $DIR
+
+if [ $? -ne 0 ]; then
+  echo "Error accessing $TAG in $REPO"
+  $(rm -rf $DIR)
+  exit 1
+else
+  echo "Exported $TAG to $DIR"
+fi
+
+
+VENV="$DIR/venv"
+REQS="$VENV/requirements.txt"
+
+# set up the virtualenv
+if [ -d "$VENV" ]; then
+  virtualenv --distribute $VENV
+  source ./$VENV/bin/activate
+  pip install -r $REQS
+  if [ $? -ne 0 ]; then
+    echo "Error occured initializing virtualenv in $VENV"
+    exit 1
+  else
+    echo "Initialized virtualenv in $VENV"
+  fi
+else
+  echo "No virtualenv dir found; skipping initialization"
+fi
+
+
+STATIC_DIR="$DIR/static"
+MANAGE_PY="$DIR/$PROJECT_DIRNAME/manage.py"
+
+# run collectstatic if appropriate
+if [[ -d "$STATIC_DIR" && "$(ls -A $STATIC_DIR)" == '.gitignore' ]]; then
+  # env doesn't maater, stage is safest (dev sometimes has extra debug apps)
+  export $PROJECT_ENV_NAME=stage
+  CMD="$MANAGE_PY collectstatic --noinput -v 0"
+  $CMD
+  if [ $? -ne 0 ]; then
+    echo "Error occured running: $CMD"
+    exit 1
+  else
+    echo "Succesful: $CMD"
+  fi
+fi
+
+
+LOGS_DIR="$DIR/logs"
+LOGS_GROUP="www-data"
+
+# set the permissions on the logs dir if needed
+# user that runs this script must be part of LOGS_GROUP
+# do this last so that log files that are initialized in the cmds
+# above get set too
+if [ -d "$LOGS_DIR" ]; then
+  chgrp -R $LOGS_GROUP $LOGS_DIR && chmod g+ws $LOGS_DIR && chmod g+w $LOGS_DIR/*
+  if [ $? -ne 0 ]; then
+    echo "Error occured setting permissions on logs directory"
+    exit 1
+  else
+    echo "Set group logging permissions on logs dir"
+  fi
+fi
