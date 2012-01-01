@@ -1,0 +1,28 @@
+# virtualenvwrapper postactivate (sourced) script for django projects
+#
+# To enable: in your virtualenvwrapper postactivate hook, add a line:
+#   source <path-to-this-file>
+# Recommended to use in conjunction with predeactivate-django-project
+#
+# If this env is linked to a project, then the DJANGO_SETTINGS_MODULE
+# env variable is set to match this project directory.
+#
+# If a pre-existing value of DJANGO_SETTINGS_MODULE is found, this is
+# saved in _OLD_DJANGO_SETTINGS_MODULE.
+
+#set -x
+
+PROJECT_PTRFILE="$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME"
+
+if [ -f "$PROJECT_PTRFILE" ]; then
+    PROJECT_PATH="$(cat $PROJECT_PTRFILE)"
+    PROJECT_NAME="$(basename $PROJECT_PATH)" 
+
+    if [ "${DJANGO_SETTINGS_MODULE+1}" ]; then
+        export _OLD_DJANGO_SETTINGS_MODULE="$DJANGO_SETTINGS_MODULE"
+    fi
+
+    export DJANGO_SETTINGS_MODULE="$PROJECT_NAME.settings"
+fi
+
+#set +x

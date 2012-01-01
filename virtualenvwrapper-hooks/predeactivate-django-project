@@ -1,0 +1,20 @@
+# virtualenvwrapper predeactivate (sourced) script for django projects
+#
+# To enable: in your virtualenvwrapper predeactivate hook, add a line:
+#   source <path-to-this-file>
+# Recommended to use in conjunction with postactivate-django-project
+#
+# Set DJANGO_SETTINGS_MODULE is to the value of _OLD_DJANGO_SETTINGS_MODULE.
+# If _OLD_DJANGO_SETTINGS_MODULE is not set, DJANGO_SETTINGS_MODULE is
+# simply cleared.
+
+#set -x
+
+if [ "${_OLD_DJANGO_SETTINGS_MODULE+1}" ]; then
+    export DJANGO_SETTINGS_MODULE="$_OLD_DJANGO_SETTINGS_MODULE"
+    unset _OLD_DJANGO_SETTINGS_MODULE
+else
+    unset DJANGO_SETTINGS_MODULE
+fi
+
+#set +x
