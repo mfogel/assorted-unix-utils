@@ -1,0 +1,9 @@
+# virtualenvwrapper postactivate (sourced) script for a colorful shell
+# prompt
+#
+# To enable: in your virtualenvwrapper postactivate hook, add a line:
+#   source <path-to-this-file>
+
+VENV_NAME="$(basename $VIRTUAL_ENV)" 
+
+export PS1="\e[0;31m($VENV_NAME)\e[0m $_OLD_VIRTUAL_PS1"
