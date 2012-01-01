@@ -1,0 +1,23 @@
+# virtualenvwrapper postmkvirtualenv (sourced) script for django projects
+#
+# To enable: in your virtualenvwrapper postmkvirtualenv hook, add a line:
+#   source <path-to-this-file>
+#
+# If this env is linked to a project, then this script looks for a file
+# in the project directory called 'pip-requirements.txt'
+#
+# If it is found, the contents of this file are installed using the pip -r
+# flag.
+
+#set -x
+
+PROJECT_PTRFILE="$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME"
+
+if [ -f "$PROJECT_PTRFILE" ]; then
+    REQ_FILE="$(cat $PROJECT_PTRFILE)/pip-requirements.txt"
+    if [ -f "$REQ_FILE" ]; then
+        pip install -I -r "$REQ_FILE"
+    fi
+fi
+
+#set +x
