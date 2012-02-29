@@ -1,0 +1,20 @@
+# virtualenvwrapper postmkvirtualenv (sourced) to workaround #122
+#
+# This script deactivates the virtualenv, then re-activates it. This
+# allows the activation hooks to see the .project link on first activation
+# (if it were set up with the -a flag).
+#
+# To enable: in your virtualenvwrapper postmkvirtualenv hook, add a line:
+#   source <path-to-this-file>
+
+#set -x
+
+ENV_NAME=$(basename $VIRTUAL_ENV)
+PROJECT_PTRFILE="$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME"
+
+if [ -f "$PROJECT_PTRFILE" ]; then
+    deactivate
+    workon "$ENV_NAME"
+fi
+
+#set +x
