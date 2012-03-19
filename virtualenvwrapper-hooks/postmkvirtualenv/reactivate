@@ -1,5 +1,8 @@
 # virtualenvwrapper postmkvirtualenv (sourced) to workaround #122
 #
+# NOTE: as of virtualenvwrapper v3.1 this is no longer needed.
+#       #122 has been fixed.
+#
 # This script deactivates the virtualenv, then re-activates it. This
 # allows the activation hooks to see the .project link on first activation
 # (if it were set up with the -a flag).
