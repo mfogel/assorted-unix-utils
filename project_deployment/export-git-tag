@@ -61,7 +61,7 @@ fi
 
 
 STATIC_DIR="$DIR/static"
-MANAGE_PY="$DIR/$PROJECT_DIRNAME/manage.py"
+MANAGE_PY="$DIR/manage.py"
 
 # run collectstatic if appropriate
 if [[ -d "$STATIC_DIR" && "$(ls -A $STATIC_DIR)" == '.gitignore' ]]; then
